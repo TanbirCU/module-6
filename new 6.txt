@@ -1,0 +1,68 @@
+CREATE TABLE Customers (
+    CustomerID INT PRIMARY KEY,
+    Name VARCHAR(255),
+    Email VARCHAR(255),
+    Location VARCHAR(255)
+);
+
+
+CREATE TABLE Orders (
+    OrderID INT PRIMARY KEY,
+    CustomerID INT,
+    OrderDate DATE,
+    TotalAmount DECIMAL(10, 2),
+    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID)
+);
+CREATE TABLE Products (
+    ProductID INT PRIMARY KEY,
+    Name VARCHAR(255),
+    Description TEXT,
+    Price DECIMAL(10, 2)
+	FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID)
+);
+CREATE TABLE Categories (
+    CategoryID INT PRIMARY KEY,
+    Name VARCHAR(255)
+);
+CREATE TABLE Order_Items (
+    OrderItemID INT PRIMARY KEY,
+    OrderID INT,
+    ProductID INT,
+    Quantity INT,
+    UnitPrice DECIMAL(10, 2),
+    FOREIGN KEY (OrderID) REFERENCES Orders(OrderID),
+    FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
+);
+Task 1:
+SELECT c.CustomerID, c.Name, c.Email, c.Location, COUNT(o.OrderID) AS TotalOrders
+FROM Customers c
+LEFT JOIN Orders o ON c.CustomerID = o.CustomerID
+GROUP BY c.CustomerID, c.Name, c.Email, c.Location
+ORDER BY TotalOrders DESC;
+
+
+Task 2:
+SELECT o.OrderID, p.Name AS ProductName, o.Quantity, (o.Quantity * o.UnitPrice) AS TotalAmount
+FROM Order_Items o
+JOIN Products p ON o.ProductID = p.ProductID
+ORDER BY o.OrderID ASC;
+
+
+Task 3:
+
+SELECT c.Name AS CategoryName, SUM(oi.Quantity * oi.UnitPrice) AS TotalRevenue
+FROM Categories c
+JOIN Products p ON c.CategoryID = p.CategoryID
+JOIN Order_Items oi ON p.ProductID = oi.ProductID
+GROUP BY c.Name
+ORDER BY TotalRevenue DESC 
+LIMIT 25;
+
+Task:4
+SELECT c.Name AS CustomerName, SUM(oi.Quantity * oi.UnitPrice) AS TotalPurchaseAmount
+FROM Customers c
+JOIN Orders o ON c.CustomerID = o.CustomerID
+JOIN Order_Items oi ON o.OrderID = oi.OrderID
+GROUP BY c.Name
+ORDER BY TotalPurchaseAmount DESC
+LIMIT 5;
